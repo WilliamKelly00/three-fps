@@ -7,7 +7,7 @@ import DebugShapes from '../../DebugShapes'
 
 
 export default class CharacterController extends Component{
-    constructor(model, clips, scene, physicsWorld){
+    constructor(model, clips, scene, physicsWorld, shotSoundBuffer, listner){
         super();
         this.name = 'CharacterController';
         this.physicsWorld = physicsWorld;
@@ -21,6 +21,9 @@ export default class CharacterController extends Component{
         this.pathDebug = new DebugShapes(scene);
         this.path = [];
         this.tempRot = new THREE.Quaternion();
+
+        this.shotSoundBuffer = shotSoundBuffer;
+        this.audioListner = listner;
 
         this.viewAngle = Math.cos(Math.PI / 4.0);
         this.maxViewDistance = 20.0 * 20.0;
@@ -40,6 +43,12 @@ export default class CharacterController extends Component{
         Object.keys(this.clips).forEach(key=>{this.SetAnim(key, this.clips[key])});
     }
 
+    SetSoundEffect(){
+        this.shotSound = new THREE.Audio(this.audioListner);
+        this.shotSound.setBuffer(this.shotSoundBuffer);
+        this.shotSound.setLoop(false);
+    }
+
     Initialize(){
         this.stateMachine = new CharacterFSM(this);
         this.navmesh = this.FindEntity('Level').GetComponent('Navmesh');
@@ -47,6 +56,7 @@ export default class CharacterController extends Component{
         this.player = this.FindEntity("Player");
 
         this.parent.RegisterEventHandler(this.TakeHit, 'hit');
+        this.SetSoundEffect();
 
         const scene = this.model;
 
@@ -161,6 +171,12 @@ export default class CharacterController extends Component{
     TakeHit = msg => {
         this.health = Math.max(0, this.health - msg.amount);
 
+        console.log(this.health);
+        // add sound
+        this.Broadcast({topic: 'ak47_shot'});
+            
+        this.shotSound.isPlaying && this.shotSound.stop();
+        this.shotSound.play();
 
         if(this.health == 0){
             this.stateMachine.SetState('dead');

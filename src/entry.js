@@ -37,7 +37,9 @@ import dieAnim from './assets/animations/mutant dying.fbx'
 import ak47 from './assets/guns/ak47/ak47.glb'
 import muzzleFlash from './assets/muzzle_flash.glb'
 //Shot sound
+
 import ak47Shot from './assets/sounds/ak47_shot.wav'
+import hitSound from './assets/sounds/hit.wav'
 
 //Ammo box
 import ammobox from './assets/ammo/AmmoBox.fbx'
@@ -191,6 +193,7 @@ class FPSGameApp{
     promises.push(this.AddAsset(ak47, gltfLoader, "ak47"));
     promises.push(this.AddAsset(muzzleFlash, gltfLoader, "muzzleFlash"));
     promises.push(this.AddAsset(ak47Shot, audioLoader, "ak47Shot"));
+    promises.push(this.AddAsset(hitSound, audioLoader, "hitSound"));
     //Ammo box
     promises.push(this.AddAsset(ammobox, fbxLoader, "ammobox"));
     promises.push(this.AddAsset(ammoboxTexD, texLoader, "ammoboxTexD"));
@@ -277,7 +280,7 @@ class FPSGameApp{
       const npcEntity = new Entity();
       npcEntity.SetPosition(new THREE.Vector3(v[0], v[1], v[2]));
       npcEntity.SetName(`Mutant${i}`);
-      npcEntity.AddComponent(new NpcCharacterController(SkeletonUtils.clone(this.assets['mutant']), this.mutantAnims, this.scene, this.physicsWorld));
+      npcEntity.AddComponent(new NpcCharacterController(SkeletonUtils.clone(this.assets['mutant']), this.mutantAnims, this.scene, this.physicsWorld, this.assets['hitSound'], this.listener));
       npcEntity.AddComponent(new AttackTrigger(this.physicsWorld));
       npcEntity.AddComponent(new CharacterCollision(this.physicsWorld));
       npcEntity.AddComponent(new DirectionDebug(this.scene));
